@@ -1,33 +1,25 @@
-from tutor import hooks
+import os
+import typing as t
+from glob import glob
 
-hooks.Filters.ENV_PATCHES.add_items(
-    [
-        (
-            "openedx-development-settings",
-            """
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-  """,
-        ),
-        (
-            "local-docker-compose-dev-services",
-            """
-mailpit:
-  image: axllent/mailpit:v1.18
-  restart: unless-stopped
-  volumes:
-    - ../../data/mailpit:/data
-  ports:
-    - 8025:8025
-    - 1025:1025
-  environment:
-    MP_MAX_MESSAGES: 5000
-    MP_DATABASE: /data/mailpit.db
-    MP_SMTP_AUTH_ACCEPT_ANY: 1
-    MP_SMTP_AUTH_ALLOW_INSECURE: 1
-  """,
-        ),
-    ]
+import importlib_resources
+from tutor import hooks as tutor_hooks
+
+config: dict[str, dict[str, t.Any]] = {
+    "overrides": {
+        "SMTP_HOST": "mailpit",
+        "SMTP_PORT": "1025",
+    },
+}
+
+# Add configuration entries
+tutor_hooks.Filters.CONFIG_OVERRIDES.add_items(
+    list(config.get("overrides", {}).items())
 )
 
-# Modify configuration
-hooks.Filters.CONFIG_DEFAULTS.add_items([("SMTP_HOST", "mailpit"), ("SMTP_PORT", 1025)])
+# Load patches from files
+for path in glob(str(importlib_resources.files("tutormailpit") / "patches" / "*")):
+    with open(path, encoding="utf-8") as patch_file:
+        tutor_hooks.Filters.ENV_PATCHES.add_item(
+            (os.path.basename(path), patch_file.read())
+        )
