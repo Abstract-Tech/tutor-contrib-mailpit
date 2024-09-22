@@ -1,1 +1,3 @@
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+FEATURES["SKIP_EMAIL_VALIDATION"] = False
+FEATURES["AUTOMATIC_AUTH_FOR_TESTING"] = False
