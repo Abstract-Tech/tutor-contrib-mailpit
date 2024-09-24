@@ -26,7 +26,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.8",
-    install_requires=["tutor>=15.0.0,<19.0.0"],
+    install_requires=["tutor>=14.0.0,<19.0.0"],
     entry_points={"tutor.plugin.v1": ["mailpit = tutormailpit.plugin"]},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
